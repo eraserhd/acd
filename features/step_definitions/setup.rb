@@ -15,6 +15,6 @@ Given /^I am in the sample project$/ do
 end
 
 Given /^"([^"]*)" is a third party repo$/ do |path|
-  pending
+  @scenario.make_third_party_repo(path)
 end
 
