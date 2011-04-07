@@ -49,6 +49,14 @@ class Scenario
       File.open(source_readme,'r') {|f| f.read} == File.open(target_readme,'r') {|f| f.read}
     end
   end
+  
+  def submodule? path
+    in_sample_project do
+      return false unless File.exist?('.gitmodules')
+      contents = File.open('.gitmodules', 'r') {|f| f.read}
+      contents =~ /\[submodule "#{path}"\]/
+    end
+  end
 
 private
   def set_environment_variables
@@ -81,8 +89,9 @@ private
     else
       ENV['RUBYLIB'] = lib_path
     end
+    result = nil
     begin
-      yield
+      result = yield
     rescue Exception => e
       ENV['PATH'] = old_path 
       ENV['RUBYLIB'] = old_rubylib
@@ -90,13 +99,16 @@ private
     end
     ENV['PATH'] = old_path 
     ENV['RUBYLIB'] = old_rubylib
+    result
   end
 
   def in_sample_project
     make_sample_project
+    result = nil
     Dir.chdir(sample_project_path) do
-      yield
+      result = yield
     end
+    result
   end
   
   def initialize_git_repo path

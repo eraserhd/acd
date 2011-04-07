@@ -4,7 +4,7 @@ Then /^I should have a clone of "([^"]*)" in "([^"]*)"$/ do |source_repo, target
 end
 
 Then /^I should have "([^"]*)" registered as a submodule$/ do |target_repo|
-  pending
+  abort "'#{target_repo}' is not registered as a submodule" unless @scenario.submodule?(target_repo)
 end
 
 Then /^I should not have uncommitted changes for "([^"]*)"$/ do |path|
