@@ -21,11 +21,12 @@ class Scenario
 
   def make_third_party_repo path
     in_sample_project do
-      initialize_git_repo path
+      initialize_git_repo(expand_variables(path))
     end
   end
 
   def run_command command
+    set_environment_variables
     in_sample_project do
       with_bin_in_path do
         abort "Failed to execute '#{command}'" unless system(command)
@@ -37,21 +38,58 @@ class Scenario
     FileUtils.remove_entry_secure @path
   end
 
+  def is_clone? source_repo, target_repo
+    source_readme = File.join(expand_variables(source_repo), 'README')
+    target_readme = File.join(expand_variables(target_repo), 'README')
+
+    in_sample_project do
+      return false unless File.exist?(source_readme)
+      return false unless File.exist?(target_readme)
+
+      File.open(source_readme,'r') {|f| f.read} == File.open(target_readme,'r') {|f| f.read}
+    end
+  end
+
 private
+  def set_environment_variables
+    ENV['ROOT'] = @path
+  end
+
+  def expand_variables s
+    set_environment_variables
+    s.gsub(/\$[A-Za-z0-9_]+/) {|var| ENV[var[1..-1]] || ""}
+  end
+
+  def my_root
+    File.join(File.dirname(__FILE__),'..','..')
+  end
+
   def bin_path
-    File.join(File.dirname(__FILE__),'..','..','bin')
+    File.join(my_root,'bin')
+  end
+
+  def lib_path
+    File.join(my_root,'lib')
   end
 
   def with_bin_in_path
     old_path = ENV['PATH']
+    old_rubylib = ENV['RUBYLIB']
     ENV['PATH'] = bin_path + File::PATH_SEPARATOR + ENV['PATH']
+    if old_rubylib
+      ENV['RUBYLIB'] = lib_path + File::PATH_SEPARATOR + ENV['RUBYLIB']
+    else
+      ENV['RUBYLIB'] = lib_path
+    end
     begin
       yield
     rescue Exception => e
       ENV['PATH'] = old_path 
+      ENV['RUBYLIB'] = old_rubylib
       raise e
     end
     ENV['PATH'] = old_path 
+    ENV['RUBYLIB'] = old_rubylib
   end
 
   def in_sample_project
