@@ -5,7 +5,7 @@ PROJECT_ROOT = File.join(File.dirname(__FILE__),'..','..')
 
 class Scenario
 
-  class Environment
+  class Cage
     attr_reader :root
 
     def initialize env
@@ -80,26 +80,26 @@ class Scenario
   end
 
   def initialize
-    @environment = Environment.new({:RUBYLIB => path_prepend(lib_path, ENV['RUBYLIB']),
-                                    :PATH => path_prepend(bin_path, ENV['PATH'])})
+    @cage = Cage.new({:RUBYLIB => path_prepend(lib_path, ENV['RUBYLIB']),
+                      :PATH => path_prepend(bin_path, ENV['PATH'])})
   end
 
   def make_third_party_repo path
-    @environment.make_git_repo(@environment.expand(path))
+    @cage.make_git_repo(@cage.expand(path))
   end
 
   def run_command command
-    abort "Failed to execute '#{command}'" unless @environment.execute(@environment.expand(command))
+    abort "Failed to execute '#{command}'" unless @cage.execute(@cage.expand(command))
   end
 
   def cleanup
-    @environment.cleanup
+    @cage.cleanup
   end
 
   def is_clone? source_repo, target_repo
-    source_readme = File.join(@environment.expand(source_repo), 'README')
-    target_readme = File.join(@environment.expand(target_repo), 'README')
-    @environment.execute do
+    source_readme = File.join(@cage.expand(source_repo), 'README')
+    target_readme = File.join(@cage.expand(target_repo), 'README')
+    @cage.execute do
       return false unless File.exist?(source_readme)
       return false unless File.exist?(target_readme)
       File.open(source_readme,'r') {|f| f.read} == File.open(target_readme,'r') {|f| f.read}
@@ -107,7 +107,7 @@ class Scenario
   end
   
   def submodule? path
-    @environment.execute do
+    @cage.execute do
       return false unless File.exist?('.gitmodules')
       contents = File.open('.gitmodules', 'r') {|f| f.read}
       contents =~ /\[submodule "#{path}"\]/
