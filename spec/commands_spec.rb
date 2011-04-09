@@ -8,5 +8,9 @@ describe ACD::Commands do
       ACD::Commands::for_args(["import", "foo"]).should be(ACD::Commands::Import);
     end
 
+    it "should return the usage class if no command specified" do
+      ACD::Commands::for_args([]).should be(ACD::Commands::Usage)
+    end
+
   end
 end

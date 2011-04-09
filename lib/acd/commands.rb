@@ -1,21 +1,24 @@
-require 'acd/commands/import'
+
+Dir.new(File.join(File.dirname(__FILE__), 'commands')).select{|f| f=~/\.rb$/}.each do |cmd|
+  require "acd/commands/#{cmd}"
+end
 
 module ACD
   module Commands
 
     def self.for_args args
+      return ACD::Commands::Usage if args.empty?
       name = args.first.capitalize
       if ACD::Commands.const_defined?(name)
         ACD::Commands.const_get(name)
       else
-        nil
+        ACD::Commands::Usage
       end
     end
 
     def self.invoke args
-      command = args.first
-      abort "Unknown command '#{command}'" unless ACD::Commands.const_defined?(command.capitalize)
-      ACD::Commands.const_get(command.capitalize).new(args[1..-1]).invoke
+      klass = for_args(args)
+      klass.new(args[1..-1]).invoke
     end
 
   end
