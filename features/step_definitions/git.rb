@@ -8,7 +8,7 @@ Then /^I should have "([^"]*)" registered as a submodule$/ do |target_repo|
 end
 
 Then /^I should not have uncommitted changes for "([^"]*)"$/ do |path|
-  pending
+  abort "'#{path}' has uncommitted changes" if @scenario.has_uncommitted_changes?(path)
 end
 
 Then /^the last log message should contain "([^"]*)"$/ do |text|

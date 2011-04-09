@@ -47,7 +47,14 @@ class Scenario
     end
   end
 
+  def has_uncommitted_changes? path
+    changed_files.include?(path)
+  end
+
 private
+  def changed_files
+    @cage.execute{git "status", "--short"}.split(/\r?\n/).map{|l| l.gsub(/^.[ \t]*/, "")}
+  end
 
   def path_prepend(what, original)
     if original
