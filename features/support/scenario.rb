@@ -8,11 +8,9 @@ class Scenario
   class Environment
     attr_reader :root
 
-    def initialize
+    def initialize env
       @root = Dir.mktmpdir
-      @env = {:ROOT => @root,
-              :RUBYLIB => path_prepend(lib_path, ENV['RUBYLIB']),
-              :PATH => path_prepend(bin_path, ENV['PATH'])}
+      @env = {:ROOT => @root}.merge(env)
       make_git_repo(sample_project_path)
     end
 
@@ -52,24 +50,8 @@ class Scenario
     end
 
   private
-    def bin_path
-      File.join(PROJECT_ROOT,'bin')
-    end
-
-    def lib_path
-      File.join(PROJECT_ROOT,'lib')
-    end
-
     def sample_project_path
       File.join(root, "project")
-    end
-
-    def path_prepend(what, original)
-      if original
-        what + File::PATH_SEPARATOR + original
-      else
-        what
-      end
     end
 
     def current_state
@@ -98,7 +80,8 @@ class Scenario
   end
 
   def initialize
-    @environment = Environment.new
+    @environment = Environment.new({:RUBYLIB => path_prepend(lib_path, ENV['RUBYLIB']),
+                                    :PATH => path_prepend(bin_path, ENV['PATH'])})
   end
 
   def make_third_party_repo path
@@ -128,6 +111,23 @@ class Scenario
       return false unless File.exist?('.gitmodules')
       contents = File.open('.gitmodules', 'r') {|f| f.read}
       contents =~ /\[submodule "#{path}"\]/
+    end
+  end
+
+private
+  def bin_path
+    File.join(PROJECT_ROOT,'bin')
+  end
+
+  def lib_path
+    File.join(PROJECT_ROOT,'lib')
+  end
+
+  def path_prepend(what, original)
+    if original
+      what + File::PATH_SEPARATOR + original
+    else
+      what
     end
   end
 
