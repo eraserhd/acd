@@ -1,99 +1,32 @@
 require 'fileutils'
-require 'tmpdir'
+require 'shellwords'
 
 PROJECT_ROOT = File.join(File.dirname(__FILE__),'..','..')
+BIN_PATH = File.join(PROJECT_ROOT,'bin')
+LIB_PATH = File.join(PROJECT_ROOT,'lib')
 
 class Scenario
 
-  class Cage
-    attr_reader :root
-
-    def initialize env
-      @root = Dir.mktmpdir
-      @env = {:ROOT => @root}.merge(env)
-      make_git_repo(sample_project_path)
+  def initialize
+    @cage = Cage.new
+    @cage.execute do
+      ENV['RUBYLIB'] = path_prepend(LIB_PATH, ENV['RUBYLIB'])
+      ENV['PATH'] = path_prepend(BIN_PATH, ENV['PATH'])
+      make_git_repo('project')
+      Dir.chdir('project')
     end
-
-    def cleanup
-      FileUtils.remove_entry_secure @root
-    end
-
-    def make_git_repo path
-      Dir.mkdir(path)
-      Dir.chdir(path) do
-        git "init"
-        File.open("README","w") {|f| f.write("A readme file - #{rand}")}
-        git "add", "README"
-        git "commit", "-m", "Initial commit"
-      end
-    end
-
-    def execute *args
-      state = :no_state_available
-      begin
-        state = enter 
-        if block_given?
-          result = yield
-        else
-          result = system(args.first) && $? == 0
-        end
-        leave(state)
-        result
-      rescue Exception => e
-        leave(state)
-        raise e
-      end
-    end
-
-    def expand s
-      s.gsub(/\$[A-Za-z0-9_]+/) {|var| @env[var[1..-1].intern] || ""}
-    end
-
-  private
-    def sample_project_path
-      File.join(root, "project")
-    end
-
-    def current_state
-      env = {}
-      @env.keys.each {|k| env[k] = ENV[k.to_s]}
-      [ Dir.getwd, env ] 
-    end
-
-    def enter
-      old_state = current_state
-      Dir.chdir(sample_project_path)
-      @env.keys.each {|k| ENV[k.to_s] = @env[k]}
-      old_state
-    end
-
-    def leave state
-      Dir.chdir(state.first)
-      state.last.keys.each {|k| ENV[k.to_s] = state.last[k]}
-    end
-
-    def git *args
-      abort "Unable to run 'git #{args.join(' ')}'" unless system *(["git"] + args)
-      abort "git error #{$?}" unless $? == 0
-    end
-
   end
 
-  def initialize
-    @cage = Cage.new({:RUBYLIB => path_prepend(lib_path, ENV['RUBYLIB']),
-                      :PATH => path_prepend(bin_path, ENV['PATH'])})
+  def dispose
+    @cage.dispose
   end
 
   def make_third_party_repo path
-    @cage.make_git_repo(@cage.expand(path))
+    make_git_repo(@cage.expand(path))
   end
 
   def run_command command
-    abort "Failed to execute '#{command}'" unless @cage.execute(@cage.expand(command))
-  end
-
-  def cleanup
-    @cage.cleanup
+    abort "Failed to execute '#{command}'" unless @cage.execute(command)
   end
 
   def is_clone? source_repo, target_repo
@@ -115,13 +48,6 @@ class Scenario
   end
 
 private
-  def bin_path
-    File.join(PROJECT_ROOT,'bin')
-  end
-
-  def lib_path
-    File.join(PROJECT_ROOT,'lib')
-  end
 
   def path_prepend(what, original)
     if original
@@ -129,6 +55,22 @@ private
     else
       what
     end
+  end
+
+  def make_git_repo path
+    Dir.mkdir(path)
+    Dir.chdir(path) do
+      git "init"
+      File.open("README","w") {|f| f.write("A readme file - #{rand}")}
+      git "add", "README"
+      git "commit", "-m", "Initial commit"
+    end
+  end
+
+  def git *args
+    result = IO.popen(['git', *args].shelljoin, "r") {|pipe| pipe.read}
+    abort "git error #{$?}" unless $? == 0
+    result
   end
 
 end

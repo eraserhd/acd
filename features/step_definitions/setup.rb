@@ -5,7 +5,7 @@ end
 
 After do
   if @scenario
-    @scenario.cleanup
+    @scenario.dispose
     @scenario = nil
   end
 end
