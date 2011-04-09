@@ -51,9 +51,17 @@ class Scenario
     changed_files.include?(path)
   end
 
+  def last_log_message_contains? text
+    last_log_message.include?(text)
+  end
+
 private
   def changed_files
     @cage.execute{git "status", "--short"}.split(/\r?\n/).map{|l| l.gsub(/^.[ \t]*/, "")}
+  end
+
+  def last_log_message
+    @cage.execute{git "log", "-1", "--oneline"}
   end
 
   def path_prepend(what, original)

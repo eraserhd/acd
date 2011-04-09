@@ -12,6 +12,6 @@ Then /^I should not have uncommitted changes for "([^"]*)"$/ do |path|
 end
 
 Then /^the last log message should contain "([^"]*)"$/ do |text|
-  pending
+  abort "Last log message does not contain '#{text}'" unless @scenario.last_log_message_contains?(text)
 end
 
