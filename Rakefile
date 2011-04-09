@@ -38,5 +38,10 @@ Cucumber::Rake::Task.new(:wip) do |t|
   t.cucumber_opts = "--format pretty --profile wip"
 end
 
+require 'spec/rake/spectask'
+Spec::Rake::SpecTask.new do |t|
+  t.spec_opts << '--color'
+end
+
 task :default => :features
 
