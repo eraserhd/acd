@@ -6,18 +6,18 @@ PROJECT_ROOT = File.join(File.dirname(__FILE__),'..','..')
 class Scenario
 
   class Environment
-    attr_reader :path
+    attr_reader :root
 
     def initialize
-      @path = Dir.mktmpdir
-      @env = {:ROOT => @path,
+      @root = Dir.mktmpdir
+      @env = {:ROOT => @root,
               :RUBYLIB => path_prepend(lib_path, ENV['RUBYLIB']),
               :PATH => path_prepend(bin_path, ENV['PATH'])}
       make_git_repo(sample_project_path)
     end
 
     def cleanup
-      FileUtils.remove_entry_secure @path
+      FileUtils.remove_entry_secure @root
     end
 
     def make_git_repo path
@@ -61,7 +61,7 @@ class Scenario
     end
 
     def sample_project_path
-      File.join(path, "project")
+      File.join(root, "project")
     end
 
     def path_prepend(what, original)
