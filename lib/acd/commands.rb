@@ -6,6 +6,10 @@ end
 module ACD
   module Commands
 
+    def self.known
+      ACD::Commands.constants.map{|c| ACD::Commands.const_get(c)}.select{|c| c.ancestors.include?(ACD::Command)}
+    end
+
     def self.for_args args
       return ACD::Commands::Usage if args.empty?
       name = args.first.capitalize

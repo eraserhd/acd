@@ -13,4 +13,21 @@ describe ACD::Commands do
     end
 
   end
+
+  describe :known do
+    
+    it "should return an array" do
+      ACD::Commands::known.should be_kind_of(Array)
+    end
+
+    it "should contain the 'usage' command" do
+      ACD::Commands::known.should include(ACD::Commands::Usage)
+    end
+
+    it "should contain the 'import' command" do
+      ACD::Commands::known.should include(ACD::Commands::Import)
+    end
+
+  end
+
 end

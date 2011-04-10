@@ -6,6 +6,8 @@ module ACD
 
     class Import < Command
 
+      SUMMARY = 'import a third party repository as a submodule'
+
       def origin
         args.first
       end
