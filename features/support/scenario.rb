@@ -1,5 +1,7 @@
 require 'fileutils'
 require 'shellwords'
+require 'stringio'
+require 'pp'
 
 PROJECT_ROOT = File.join(File.dirname(__FILE__),'..','..')
 BIN_PATH = File.join(PROJECT_ROOT,'bin')
@@ -12,6 +14,8 @@ class Scenario
     @cage.execute do
       ENV['RUBYLIB'] = path_prepend(LIB_PATH, ENV['RUBYLIB'])
       ENV['PATH'] = path_prepend(BIN_PATH, ENV['PATH'])
+      ENV['ACD_APOTHECARY'] = File.join(@cage.root, 'apothecary')
+      Dir.mkdir('apothecary')
       make_git_repo('project')
       Dir.chdir('project')
     end
@@ -27,6 +31,21 @@ class Scenario
 
   def run_command command
     abort "Failed to execute '#{command}'" unless @cage.execute(command)
+  end
+
+  def make_remedy name, properties
+    @cage.execute do
+      File.open(File.join(ENV['ACD_APOTHECARY'], "#{name}.rb"), 'w') do |f|
+        f << "ACD::Remedy.new do |r|\n"
+        properties.each do |k,v|
+          sio = StringIO.new("", 'w')
+          v = @cage.expand(v) if v.kind_of?(String)
+          PP.singleline_pp(v,sio)
+          f << "  r.#{k} = #{sio.string}\n"
+        end
+        f << "end\n"
+      end
+    end
   end
 
   def is_clone? source_repo, target_repo
