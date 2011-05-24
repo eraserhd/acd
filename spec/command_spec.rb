@@ -2,7 +2,7 @@ require 'acd/command'
 
 describe ACD::Command do
 
-  describe :command_name do
+  describe '#command_name' do
 
     it "should return the command-form of the class's name" do
       ACD::Commands::Usage.command_name.should == "usage"
@@ -11,7 +11,7 @@ describe ACD::Command do
 
   end
 
-  describe :summary do
+  describe '#summary' do
 
     it "should return the class's SUMMARY, if defined" do
       ACD::Commands::Usage.summary.should == ACD::Commands::Usage::SUMMARY

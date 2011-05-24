@@ -11,3 +11,25 @@ Feature: Importing third party repositories
     And I should not have uncommitted changes for ".gitmodules"
     And I should not have uncommitted changes for "submodules/foo"
     And the last log message should contain "Import foo"
+
+  @wip
+  Scenario: Import using a formula file
+    Given "$ROOT/foo" is a third party repo
+    And acd has a formula for "foo" referring to "$ROOT/foo"
+    When I run "acd import foo"
+    Then I should have a clone of "$ROOT/foo" in "submodules/foo"
+    And I should have "submodules/foo" registered as a submodule
+    And I should not have uncommitted changes for ".gitmodules"
+    And I should not have uncommitted changes for "submodules/foo"
+    And the last log message should contain "Import foo"
+
+  @wip
+  Scenario: Import using a formula file, but override the repository
+    Given "$ROOT/foo" is a third party repo
+    And acd has a formula for "foo" referring to "$ROOT/bar"
+    When I run "acd import foo --from $ROOT/foo"
+    Then I should have a clone of "$ROOT/foo" in "submodules/foo"
+    And I should have "submodules/foo" registered as a submodule
+    And I should not have uncommitted changes for ".gitmodules"
+    And I should not have uncommitted changes for "submodules/foo"
+    And the last log message should contain "Import foo"
