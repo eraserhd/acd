@@ -20,30 +20,56 @@ describe ACD::Apothecary do
 
   describe '::potentize' do
 
-    it "should return nil if no formula exists" do
-      ACD::Apothecary.potentize('this_formula_should_never_exist').should be_nil
-    end
+    context 'when loading a remedy' do
 
-    it "should load a remedy and return it if one exists" do
-      ENV['ACD_APOTHECARY'] = Dir.tmpdir
-      File.open(File.join(Dir.tmpdir,'foo.rb'),'w') do |f|
-        f.write <<-EOF
-          ACD::Remedy.new do |foo|
-            foo.repository = 'foo@example.com'
-          end
-        EOF
+      it "should return nil if no remedy exists" do
+        ACD::Apothecary.potentize('this_remedy_should_never_exist').should be_nil
       end
-      remedy = ACD::Apothecary.potentize('foo')
-      remedy.should_not be_nil
-      remedy.should be_kind_of(ACD::Remedy)
-      remedy.repository.should == 'foo@example.com'
+
+      it "should load a remedy and return it if one exists" do
+        ENV['ACD_APOTHECARY'] = Dir.tmpdir
+        File.open(File.join(Dir.tmpdir,'foo.rb'),'w') do |f|
+          f.write <<-EOF
+            ACD::Remedy.new do |foo|
+              foo.repository = 'foo@example.com'
+            end
+          EOF
+        end
+        remedy = ACD::Apothecary.potentize('foo')
+        remedy.should_not be_nil
+        remedy.should be_kind_of(ACD::Remedy)
+        remedy.repository.should == 'foo@example.com'
+      end
+
+      it "should set the remedy's name to potentize's argument" do
+        ENV['ACD_APOTHECARY'] = Dir.tmpdir
+        File.open(File.join(Dir.tmpdir,'foo.rb'),'w') do |f|
+          f.write <<-EOF
+            ACD::Remedy.new do |foo|
+              foo.repository = 'foo@example.com'
+            end
+          EOF
+        end
+        remedy = ACD::Apothecary.potentize('foo')
+        remedy.name.should == 'foo'
+      end
+
     end
 
-    it "should create a new remedy if a git URL is given" do
-      REPO = 'git@github.com:BlueFrogGaming/slime.git'
-      remedy = ACD::Apothecary.potentize(REPO)
-      remedy.should be_kind_of(ACD::Remedy)
-      remedy.repository.should == REPO
+    context 'when using a git URL' do
+
+      it "should create a new remedy with the git URL as a repository" do
+        REPO = 'git@github.com:BlueFrogGaming/slime.git'
+        remedy = ACD::Apothecary.potentize(REPO)
+        remedy.should be_kind_of(ACD::Remedy)
+        remedy.repository.should == REPO
+      end
+
+      it "should use the git URL's base name as the name" do
+        remedy = ACD::Apothecary.potentize('git@github.com:BlueFrogGaming/slime.git')
+        remedy.name.should == 'slime'
+      end
+
     end
 
   end

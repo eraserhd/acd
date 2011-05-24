@@ -17,7 +17,7 @@ module ACD
       @@last_created = self
     end
 
-    attr_accessor :repository
+    attr_accessor :repository, :name
 
     def validate
       raise InvalidRemedySpecification.new('repository was not specified') unless repository

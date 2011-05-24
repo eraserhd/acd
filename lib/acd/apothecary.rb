@@ -11,15 +11,18 @@ module ACD
     def self.potentize formula_name
       if formula_name =~ /[\/:@\.]/
         return Remedy.new do |r|
+          r.name = formula_name.sub(/\.git$/, "").sub(/^.*\//, "")
           r.repository = formula_name
         end
       end
 
       begin
         load File.join(self.directory, "#{formula_name}.rb")
-        return ACD::Remedy.last_created
+        remedy = ACD::Remedy.last_created
+        remedy.name = formula_name
+        remedy
       rescue LoadError => e
-        return nil 
+        nil 
       end
     end
     

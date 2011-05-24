@@ -13,16 +13,12 @@ module ACD
         args.first
       end
 
-      def name
-        remedy_name.sub(/\.git$/, "").sub(/^.*\//, "")
-      end
-
       def invoke
         remedy = Apothecary.potentize(remedy_name)
         
-        abort "Unable to add git submodule" unless system "git", "submodule", "add", remedy.repository, "submodules/#{name}"
-        abort "Unable to add files" unless system "git", "add", ".gitmodules", "submodules/#{name}"
-        abort "Unable to commit" unless system "git", "commit", "-m", "Import #{name}"
+        abort "Unable to add git submodule" unless system "git", "submodule", "add", remedy.repository, "submodules/#{remedy.name}"
+        abort "Unable to add files" unless system "git", "add", ".gitmodules", "submodules/#{remedy.name}"
+        abort "Unable to commit" unless system "git", "commit", "-m", "Import #{remedy.name}"
       end
       
     end
