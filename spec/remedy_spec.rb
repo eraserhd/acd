@@ -36,48 +36,52 @@ describe ACD::Remedy do
     remedy.repository.should == 'foo'
   end
 
-  describe '#to_s' do
+  describe '#xcode_project' do
 
-    it "should start with 'ACD::Remedy.new do |r|'" do
-      remedy.to_s.split(/\n/).first.should match(/^\s*ACD::Remedy\.new do \|r\|/)
-    end
-
-    it "should end with 'end'" do
-      remedy.to_s.split(/\n/).last.should match(/^end\s*$/)
-    end
-
-    it "should have all properties except name" do
-      ACD::Remedy::PROPERTIES.each do |property|
-        next if property == :name
-        remedy.to_s.should match(/^  r\.#{property} = /)
+    before(:each) do
+      @remedy = ACD::Remedy.new do |r|
+        r.repository = 'foo'
       end
-      remedy.to_s.should_not match(/^r\.name =/)
+    end
+    
+    it "should accept a block taking an argument" do
+      @remedy.xcode_project {|p|}
     end
 
-    it "should be valid ruby code and load" do
-      eval remedy.to_s
+    it "should return nil by default" do
+      @remedy.xcode_project.should be_nil
     end
 
-    it "should preserve property values (except name)" do
-      r = eval remedy.to_s
-      r.repository.should == remedy.repository
+    it "should not create an xcode project if called without a block" do
+      @remedy.xcode_project.should be_nil
+      @remedy.xcode_project.should be_nil
+    end
+
+    it "should yield an XcodeProject to the block given" do
+      block_was_run = false
+      @remedy.xcode_project do |p|
+        p.should be_kind_of(ACD::XcodeProject)
+        block_was_run = true
+      end
+      block_was_run.should be_true
+    end
+    
+    it "should return the XcodeProject that was yielded" do
+      yielded_value = nil
+      returned_value = @remedy.xcode_project do |p|
+        yielded_value = p
+      end
+      returned_value.should be(yielded_value)
+    end
+
+    it "should return the XcodeProject that was yielded on subsequent invocations without a block" do
+      yielded_value = nil
+      @remedy.xcode_project do |p|
+        yielded_value = p
+      end
+      @remedy.xcode_project.should be(yielded_value)
     end
 
   end
 
-  describe '#save_to_directory' do
-
-    it "should raise if the remedy has no name" do
-      lambda {remedy_without_name.save_to_directory(Dir.tmpdir)}.should raise_error
-    end
-
-    it "should write #to_s to a file in the specified directory" do
-      tmpdir = Dir.tmpdir 
-      File.delete(File.join(tmpdir, 'foo.rb'))
-      remedy.save_to_directory(tmpdir)
-      File.should exist(File.join(tmpdir, 'foo.rb'))
-    end
-     
-  end
-  
 end

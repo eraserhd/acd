@@ -23,6 +23,6 @@ Given /^the remedy has ([^"]*): "([^"]*)"$/ do |name, value|
 end
 
 Given /^the remedy wants an Xcode project file$/ do
-  pending
+  @scenario.remedy_wants_xcode
 end
 

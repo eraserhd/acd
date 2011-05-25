@@ -20,6 +20,7 @@ class Scenario
       make_git_repo('project')
       Dir.chdir('project')
     end
+    @remedy_text = ""
   end
 
   def dispose
@@ -34,21 +35,49 @@ class Scenario
     abort "Failed to execute '#{command}'" unless @cage.execute(command)
   end
 
+  def file_exists? file
+    @cage.execute { File.exists?(@cage.expand(file)) }
+  end
+
   def make_remedy name
-    @remedy = ACD::Remedy.new do |r|
-      r.name = name
-    end
-    save_remedy
+    @remedy_name = name
+    @remedy_text = ""
+    add_remedy_text <<-EOS
+      remedy.name = '#{name}'
+    EOS
   end
 
   def save_remedy
-    @cage.execute { @remedy.save_to_directory(ENV['ACD_APOTHECARY']) }
+    @cage.execute do
+      File.open(File.join(ENV['ACD_APOTHECARY'], "#{@remedy_name}.rb"),"w") do |f|
+        f << "ACD::Remedy.new do |remedy|\n"
+        f << "#{@remedy_text}\n"
+        f << "end\n"
+      end
+    end
   end
+  private :save_remedy
+
+  def add_remedy_text text
+    @remedy_text << text
+    save_remedy
+  end
+  private :add_remedy_text
 
   def set_remedy_property name, value
     value = @cage.expand(value) if value.kind_of?(String)
-    @remedy.send("#{name}=", value)
-    save_remedy
+    sio = StringIO.new("", 'w')
+    PP.singleline_pp(value, sio)
+    add_remedy_text <<-EOS
+      remedy.#{name} = #{sio.string}
+    EOS
+  end
+
+  def remedy_wants_xcode
+    add_remedy_text <<-EOS
+      remedy.xcode_project do |p|
+      end
+    EOS
   end
 
   def is_clone? source_repo, target_repo
