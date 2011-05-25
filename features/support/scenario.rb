@@ -1,3 +1,4 @@
+require 'acd/remedy'
 require 'fileutils'
 require 'shellwords'
 require 'stringio'
@@ -33,19 +34,21 @@ class Scenario
     abort "Failed to execute '#{command}'" unless @cage.execute(command)
   end
 
-  def make_remedy name, properties
-    @cage.execute do
-      File.open(File.join(ENV['ACD_APOTHECARY'], "#{name}.rb"), 'w') do |f|
-        f << "ACD::Remedy.new do |r|\n"
-        properties.each do |k,v|
-          sio = StringIO.new("", 'w')
-          v = @cage.expand(v) if v.kind_of?(String)
-          PP.singleline_pp(v,sio)
-          f << "  r.#{k} = #{sio.string}\n"
-        end
-        f << "end\n"
-      end
+  def make_remedy name
+    @remedy = ACD::Remedy.new do |r|
+      r.name = name
     end
+    save_remedy
+  end
+
+  def save_remedy
+    @cage.execute { @remedy.save_to_directory(ENV['ACD_APOTHECARY']) }
+  end
+
+  def set_remedy_property name, value
+    value = @cage.expand(value) if value.kind_of?(String)
+    @remedy.send("#{name}=", value)
+    save_remedy
   end
 
   def is_clone? source_repo, target_repo

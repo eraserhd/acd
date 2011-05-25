@@ -14,7 +14,8 @@ Feature: Importing third party repositories
 
   Scenario: Import using a remedy file
     Given "$ROOT/foo" is a third party repo
-    And acd has a remedy "foo" with repository: "$ROOT/foo"
+    And acd has a remedy "foo"
+    And the remedy has repository: "$ROOT/foo"
     When I run "acd import foo"
     Then I should have a clone of "$ROOT/foo" in "submodules/foo"
     And I should have "submodules/foo" registered as a submodule
