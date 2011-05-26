@@ -11,20 +11,25 @@ describe ACD::XcodeBuilder do
       @cage.execute do
         Dir.mkdir('Foo')
         Dir.chdir('Foo')
+        example.run
       end
-      example.run
       @cage.dispose
     end
 
     context 'when initializing the project' do
       
+      subject { ACD::XcodeBuilder.new(ACD::XcodeProject.new) }
+      
       it "should create the .xcodeproj directory" do
-        @cage.execute do
-          File.directory?('Foo.xcodeproj').should be_false
-          ACD::XcodeBuilder.new(ACD::XcodeProject.new).build 
-          File.directory?('Foo.xcodeproj').should be_true
-        end
+        subject.build 
+        File.directory?('Foo.xcodeproj').should be_true
       end
+
+      it "should create the *.xcodeproj/project.pbxproj file" do
+        subject.build 
+        File.exist?('Foo.xcodeproj/project.pbxproj').should be_true
+      end
+
     end
 
   end
