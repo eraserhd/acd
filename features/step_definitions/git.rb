@@ -11,6 +11,10 @@ Then /^I should not have uncommitted changes for "([^"]*)"$/ do |path|
   abort "'#{path}' has uncommitted changes" if @scenario.has_uncommitted_changes?(path)
 end
 
+Then /^I should not have uncommitted changes$/ do
+  abort "has uncommitted changes" if @scenario.has_uncommitted_changes?
+end
+
 Then /^the last log message should contain "([^"]*)"$/ do |text|
   abort "Last log message does not contain '#{text}'" unless @scenario.last_log_message_contains?(text)
 end

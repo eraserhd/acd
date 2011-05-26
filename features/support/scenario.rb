@@ -99,8 +99,9 @@ class Scenario
     end
   end
 
-  def has_uncommitted_changes? path
-    changed_files.include?(path)
+  def has_uncommitted_changes? *args
+    return !changed_files.empty? if args.empty?
+    changed_files.include?(args.first)
   end
 
   def last_log_message_contains? text
@@ -109,7 +110,7 @@ class Scenario
 
 private
   def changed_files
-    @cage.execute{git "status", "--short"}.split(/\r?\n/).map{|l| l.gsub(/^.[ \t]*/, "")}
+    @cage.execute{git "status", "--short"}.split(/\r?\n/).map{|l| l.gsub(/^..[ \t]*/, "")}
   end
 
   def last_log_message

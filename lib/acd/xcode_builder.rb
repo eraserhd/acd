@@ -37,6 +37,7 @@ module ACD
     def build
       Dir.mkdir(project_xcodeproj_path)
       File.open(project_pbxproj_path, "w") {|f| f.write(pbxproj_contents)}
+      system "git", "add", project_pbxproj_path
     end
     
   end

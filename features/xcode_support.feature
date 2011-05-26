@@ -9,7 +9,7 @@ Feature: Xcode Support
     And acd has a remedy "foo"
     And the remedy has repository: "$ROOT/foo"
     And the remedy wants an Xcode project file
-    When I run "acd import $ROOT/foo"
+    When I run "acd import foo"
     Then "project.xcodeproj/project.pbxproj" should exist
-    And I should not have uncommitted changes for "project.xcodeproj/project.pbxproj"
-    And I should be able to build the project
+    And I should not have uncommitted changes
+    And the Xcode project should build

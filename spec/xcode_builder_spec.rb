@@ -11,6 +11,7 @@ describe ACD::XcodeBuilder do
       @cage.execute do
         Dir.mkdir('Foo')
         Dir.chdir('Foo')
+        system 'git init >/dev/null 2>&1'
         example.run
       end
       @cage.dispose
@@ -28,6 +29,11 @@ describe ACD::XcodeBuilder do
       it "should create the *.xcodeproj/project.pbxproj file" do
         subject.build 
         File.exist?('Foo.xcodeproj/project.pbxproj').should be_true
+      end
+
+      it "should add the project.pbxproj to git" do
+        subject.build
+        `git status --short Foo.xcodeproj/project.pbxproj`.should match(/^A/)
       end
 
     end
