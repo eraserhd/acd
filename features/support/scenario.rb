@@ -1,4 +1,5 @@
 require 'acd/remedy'
+require 'acd/cage'
 require 'fileutils'
 require 'shellwords'
 require 'stringio'
@@ -11,7 +12,7 @@ LIB_PATH = File.join(PROJECT_ROOT,'lib')
 class Scenario
 
   def initialize
-    @cage = Cage.new
+    @cage = ACD::Cage.new
     @cage.execute do
       ENV['RUBYLIB'] = path_prepend(LIB_PATH, ENV['RUBYLIB'])
       ENV['PATH'] = path_prepend(BIN_PATH, ENV['PATH'])
