@@ -12,4 +12,3 @@ Feature: Xcode Support
     When I run "acd import foo"
     Then "project.xcodeproj/project.pbxproj" should exist
     And I should not have uncommitted changes
-    And the Xcode project should build
