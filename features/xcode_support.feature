@@ -3,7 +3,6 @@ Feature: Xcode Support
   In order to save lots of time,
   I want acd to manipulate my Xcode project file.
 
-  @wip
   Scenario: Initializes an xcodeproj if necessary
     Given "$ROOT/foo" is a third party repo
     And acd has a remedy "foo"
