@@ -1,5 +1,5 @@
 
-module Git
+module GitWorld
 
   def git *args
     output = IO.popen(['git', *args].shelljoin, "r") {|pipe| pipe.read}
@@ -17,6 +17,10 @@ module Git
     end
   end
 
+  def make_third_party_repo path
+    make_git_repo(@cage.expand(path))
+  end
+
   def submodule? path
     return false unless File.exist?('.gitmodules')
     contents = File.open('.gitmodules', 'r') {|f| f.read}
@@ -30,6 +34,7 @@ module Git
   def last_log_message
     git "log", "-1", "--oneline"
   end
+
 
 end
 

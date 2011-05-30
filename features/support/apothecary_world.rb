@@ -4,21 +4,21 @@ require 'fileutils'
 require 'shellwords'
 require 'stringio'
 require 'pp'
-require 'git'
+
+require File.join(File.dirname(__FILE__),'git_world')
 
 PROJECT_ROOT = File.join(File.dirname(__FILE__),'..','..')
 BIN_PATH = File.join(PROJECT_ROOT,'bin')
 LIB_PATH = File.join(PROJECT_ROOT,'lib')
 
-class Scenario
+module ApothecaryWorld
+  include GitWorld
   
-  include Git
-
-  def initialize
+  def boot_cage
     @cage = ACD::Cage.new
     @cage.execute do
-      ENV['RUBYLIB'] = path_prepend(LIB_PATH, ENV['RUBYLIB'])
-      ENV['PATH'] = path_prepend(BIN_PATH, ENV['PATH'])
+      prepend_path :RUBYLIB, LIB_PATH
+      prepend_path :PATH, BIN_PATH
       ENV['ACD_APOTHECARY'] = File.join(@cage.root, 'apothecary')
       Dir.mkdir('apothecary')
       make_git_repo('project')
@@ -27,12 +27,18 @@ class Scenario
     @remedy_text = ""
   end
 
-  def dispose
-    @cage.dispose
+  def prepend_path name, value
+    name = name.to_s
+    if ENV[name]
+      ENV[name] = value + File::PATH_SEPARATOR + ENV[name]
+    else
+      ENV[name] = value
+    end
   end
+  private :prepend_path
 
-  def make_third_party_repo path
-    make_git_repo(@cage.expand(path))
+  def dispose_cage
+    @cage.dispose if @cage
   end
 
   def run_command command
@@ -118,13 +124,6 @@ class Scenario
 
   run_method_in_cage :changed_files, :last_log_message
 
-  def path_prepend(what, original)
-    if original
-      what + File::PATH_SEPARATOR + original
-    else
-      what
-    end
-  end
-  private :path_prepend
-
 end
+
+World(ApothecaryWorld)
