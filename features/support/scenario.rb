@@ -4,12 +4,15 @@ require 'fileutils'
 require 'shellwords'
 require 'stringio'
 require 'pp'
+require 'git'
 
 PROJECT_ROOT = File.join(File.dirname(__FILE__),'..','..')
 BIN_PATH = File.join(PROJECT_ROOT,'bin')
 LIB_PATH = File.join(PROJECT_ROOT,'lib')
 
 class Scenario
+  
+  include Git
 
   def initialize
     @cage = ACD::Cage.new
@@ -36,9 +39,21 @@ class Scenario
     abort "Failed to execute '#{command}'" unless @cage.execute(command)
   end
 
-  def file_exists? file
-    @cage.execute { File.exists?(@cage.expand(file)) }
+  def self.run_method_in_cage *methods
+    methods.each do |method_name|
+      m = instance_method(method_name)
+      define_method(method_name) do |*args|
+        @cage.execute do
+          m.bind(self).call(*args)
+        end
+      end
+    end
   end
+
+  def file_exists? file
+    File.exists?(@cage.expand(file))
+  end
+  run_method_in_cage :file_exists?
 
   def make_remedy name
     @remedy_name = name
@@ -49,14 +64,13 @@ class Scenario
   end
 
   def save_remedy
-    @cage.execute do
-      File.open(File.join(ENV['ACD_APOTHECARY'], "#{@remedy_name}.rb"),"w") do |f|
-        f << "ACD::Remedy.new do |remedy|\n"
-        f << "#{@remedy_text}\n"
-        f << "end\n"
-      end
+    File.open(File.join(ENV['ACD_APOTHECARY'], "#{@remedy_name}.rb"),"w") do |f|
+      f << "ACD::Remedy.new do |remedy|\n"
+      f << "#{@remedy_text}\n"
+      f << "end\n"
     end
   end
+  run_method_in_cage :save_remedy
   private :save_remedy
 
   def add_remedy_text text
@@ -91,13 +105,7 @@ class Scenario
     end
   end
   
-  def submodule? path
-    @cage.execute do
-      return false unless File.exist?('.gitmodules')
-      contents = File.open('.gitmodules', 'r') {|f| f.read}
-      contents =~ /\[submodule "#{path}"\]/
-    end
-  end
+  run_method_in_cage :submodule?
 
   def has_uncommitted_changes? *args
     return !changed_files.empty? if args.empty?
@@ -108,14 +116,7 @@ class Scenario
     last_log_message.include?(text)
   end
 
-private
-  def changed_files
-    @cage.execute{git "status", "--short"}.split(/\r?\n/).map{|l| l.gsub(/^..[ \t]*/, "")}
-  end
-
-  def last_log_message
-    @cage.execute{git "log", "-1", "--oneline"}
-  end
+  run_method_in_cage :changed_files, :last_log_message
 
   def path_prepend(what, original)
     if original
@@ -124,21 +125,6 @@ private
       what
     end
   end
-
-  def make_git_repo path
-    Dir.mkdir(path)
-    Dir.chdir(path) do
-      git "init"
-      File.open("README","w") {|f| f.write("A readme file - #{rand}")}
-      git "add", "README"
-      git "commit", "-m", "Initial commit"
-    end
-  end
-
-  def git *args
-    result = IO.popen(['git', *args].shelljoin, "r") {|pipe| pipe.read}
-    abort "git error #{$?}" unless $? == 0
-    result
-  end
+  private :path_prepend
 
 end
