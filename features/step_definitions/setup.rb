@@ -3,10 +3,6 @@ Before do
   boot_cage
 end
 
-After do
-  dispose_cage
-end
-
 Given /^"([^"]*)" is a third party repo$/ do |path|
   make_third_party_repo path
 end

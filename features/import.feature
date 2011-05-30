@@ -5,7 +5,7 @@ Feature: Importing third party repositories
 
   Scenario: Basic acd import
     Given "$ROOT/foo" is a third party repo
-    When I run "acd import $ROOT/foo"
+    When I run `acd import $ROOT/foo`
     Then I should have a clone of "$ROOT/foo" in "submodules/foo"
     And I should have "submodules/foo" registered as a submodule
     And I should not have uncommitted changes for ".gitmodules"
@@ -16,7 +16,7 @@ Feature: Importing third party repositories
     Given "$ROOT/foo" is a third party repo
     And acd has a remedy "foo"
     And the remedy has repository: "$ROOT/foo"
-    When I run "acd import foo"
+    When I run `acd import foo`
     Then I should have a clone of "$ROOT/foo" in "submodules/foo"
     And I should have "submodules/foo" registered as a submodule
     And I should not have uncommitted changes for ".gitmodules"

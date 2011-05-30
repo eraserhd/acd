@@ -10,4 +10,5 @@ group :development do
   gem "jeweler", "~> 1.5.2"
   gem "cucumber"
   gem "rspec", "~> 2.6"
+  gem "aruba"
 end
