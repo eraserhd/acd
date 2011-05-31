@@ -34,6 +34,7 @@ GEM
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.6.0)
     term-ansicolor (1.0.5)
+    zerg_xcode (0.3.5)
 
 PLATFORMS
   ruby
@@ -44,3 +45,4 @@ DEPENDENCIES
   cucumber
   jeweler (~> 1.5.2)
   rspec (~> 2.6)
+  zerg_xcode (~> 0.3.5)
