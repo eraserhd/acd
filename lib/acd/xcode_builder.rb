@@ -11,7 +11,7 @@ module ACD
     end
 
     def template_text
-      File.open(PBXPROJ_TEMPLATE,'r') {|f| f.read}
+      File.read PBXPROJ_TEMPLATE
     end
     private :template_text
 

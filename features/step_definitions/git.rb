@@ -20,5 +20,5 @@ Then /^the last log message should contain "([^"]*)"$/ do |text|
 end
 
 Given /^the repo "([^"]*)" has a file "([^"]*)" with the contents of "([^"]*)"$/ do |repo, file, other_file|
-  commit_file_to_repo(repo, file, File.open(other_file, 'rb') {|f| f.read})
+  commit_file_to_repo(repo, file, File.read(other_file))
 end

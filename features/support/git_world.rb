@@ -42,14 +42,14 @@ module GitWorld
       target_readme = File.join(expand(target_repo), 'README')
       return false unless File.exist?(source_readme)
       return false unless File.exist?(target_readme)
-      File.open(source_readme,'r') {|f| f.read} == File.open(target_readme,'r') {|f| f.read}
+      File.read(source_readme) == File.read(target_readme)
     end
   end
   
   def submodule? path
     prep_for_fs_check do
       return false unless File.exist?('.gitmodules')
-      contents = File.open('.gitmodules', 'r') {|f| f.read}
+      contents = File.read '.gitmodules'
       contents =~ /\[submodule "#{path}"\]/
     end
   end
