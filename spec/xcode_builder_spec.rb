@@ -12,6 +12,8 @@ describe ACD::XcodeBuilder do
         Dir.mkdir('Foo')
         Dir.chdir('Foo')
         system 'git init >/dev/null 2>&1'
+        Dir.mkdir('submodules')
+        Dir.mkdir('submodules/Bar')
         example.run
       end
       @cage.dispose
@@ -19,7 +21,7 @@ describe ACD::XcodeBuilder do
 
     context 'when initializing the project' do
       
-      subject { ACD::XcodeBuilder.new(ACD::XcodeProject.new) }
+      subject { ACD::XcodeBuilder.new(ACD::XcodeProject.new, 'submodules/Bar') }
       
       it "should create the .xcodeproj directory" do
         subject.build 

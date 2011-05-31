@@ -1,4 +1,6 @@
 
+require 'zerg_xcode'
+
 module ACD
 
   class XcodeProject

@@ -5,8 +5,9 @@ module ACD
 
     PBXPROJ_TEMPLATE = File.join(File.dirname(__FILE__), 'project.pbxproj.erb')
 
-    def initialize project
+    def initialize project, imported_from
       @project = project
+      @imported_from = imported_from
     end
 
     def template_text
