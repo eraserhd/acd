@@ -22,6 +22,16 @@ module GitWorld
     end
   end
 
+  def commit_file_to_repo repo, path, contents
+    in_current_dir do
+      Dir.chdir(expand(repo)) do
+        File.open(path, "wb") {|f| f.write(contents)}
+        git "add", path
+        git "commit", "-m", "Add #{path}"
+      end
+    end
+  end
+
   def make_third_party_repo path
     make_git_repo(full_path_of(path))
   end

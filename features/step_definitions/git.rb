@@ -19,6 +19,6 @@ Then /^the last log message should contain "([^"]*)"$/ do |text|
   abort "Last log message does not contain '#{text}'" unless last_log_message_contains?(text)
 end
 
-Then /^"([^"]*)" should exist$/ do |file|
-  abort "'#{file}' does not exist" unless file_exists?(file)
+Given /^the repo "([^"]*)" has a file "([^"]*)" with the contents of "([^"]*)"$/ do |repo, file, other_file|
+  commit_file_to_repo(repo, file, File.open(other_file, 'rb') {|f| f.read})
 end

@@ -32,6 +32,4 @@ Feature: Xcode Support
        """
     When I run `acd import foo`
     Then I should have a target named "Foo"
-
-    When I run `xcodebuild -target Foo`
-    Then the exit status should be 0
+    And the "Foo" target should build
