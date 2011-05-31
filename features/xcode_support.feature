@@ -26,10 +26,11 @@ Feature: Xcode Support
        ACD::Remedy.new do |r|
          r.repository = '$ROOT/foo'
          r.xcode_project do |p|
-           p.import_target 'Foo', :from => 'template.pbxproj'
+           p.import_target 'FooTarget', :from => 'template.pbxproj'
          end
        end
        """
     When I run `acd import foo`
-    Then I should have a target named "Foo"
-    And the "Foo" target should build
+    Then the exit status should be 0
+    And I should have a target named "FooTarget"
+    And the "FooTarget" target should build

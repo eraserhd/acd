@@ -29,8 +29,8 @@ module Aruba
     # Expand shell variables before running commands
     unless instance_methods.include?(:aruba_run)
       alias_method :aruba_run, :run
-      define_method(:run) do |cmd|
-        aruba_run(expand(cmd))
+      define_method(:run) do |cmd, &block|
+        aruba_run(expand(cmd), &block)
       end
     end
 

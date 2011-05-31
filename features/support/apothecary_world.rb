@@ -6,6 +6,7 @@ require 'stringio'
 require 'pp'
 
 require File.join(File.dirname(__FILE__),'git_world')
+require File.join(File.dirname(__FILE__), 'xcode_world')
 
 PROJECT_ROOT = File.join(File.dirname(__FILE__),'..','..')
 BIN_PATH = File.join(PROJECT_ROOT,'bin')
@@ -13,6 +14,7 @@ LIB_PATH = File.join(PROJECT_ROOT,'lib')
 
 module ApothecaryWorld
   include GitWorld
+  include XcodeWorld
   include Aruba::Api
   
   def boot_cage
