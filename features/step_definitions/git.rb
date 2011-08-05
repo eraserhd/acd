@@ -22,3 +22,13 @@ end
 Given /^the repo "([^"]*)" has a file "([^"]*)" with the contents of "([^"]*)"$/ do |repo, file, other_file|
   commit_file_to_repo(repo, file, File.read(other_file))
 end
+
+Given /^I am not in a git repo$/ do
+  unmake_git_repo
+end
+
+Then /^the following should be ignored by git:$/ do |table|
+  # table is a Cucumber::Ast::Table
+  pending # express the regexp above with the code you wish you had
+end
+

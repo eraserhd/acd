@@ -1,6 +1,7 @@
 
 require File.join(File.dirname(__FILE__),'aruba_helpers')
 require 'aruba/cucumber'
+require 'fileutils'
 
 module GitWorld
 
@@ -19,6 +20,12 @@ module GitWorld
         git "add", "README"
         git "commit", "-m", "Initial commit"
       end
+    end
+  end
+
+  def unmake_git_repo
+    in_current_dir do
+      FileUtils.rm_rf('.git')
     end
   end
 
